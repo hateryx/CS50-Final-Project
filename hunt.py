@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 import random
 
 from reportlab.pdfgen import canvas
-
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.pagesizes import A4
 
@@ -27,7 +26,8 @@ def main():
         url = "https://news.abs-cbn.com/entertainment"
         soup_list = soup_getter(url, "entertainment")
     pick = random.choice(soup_list)
-    final_url = "https://news.abs-cbn.com"+pick
+    #final_url = "https://news.abs-cbn.com"+pick
+    final_url = "https://news.abs-cbn.com/news/02/16/23/remains-of-pinay-who-died-in-turkey-quake-brought-home"
     print(final_url)
 
     title = title_builder(str(pick))
@@ -97,7 +97,6 @@ def title_builder(title):
 def generate_news_pdf(title, contents):
 
     fileName = "news_x.pdf"
-    create_content = " <br/><br />".join(contents)
 
     pdf = canvas.Canvas(fileName)
     pdf.setTitle(title)
@@ -106,11 +105,34 @@ def generate_news_pdf(title, contents):
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
     story = []
+    story_p2 = []
     # add some flowables
-    story.append(Paragraph(create_content, styleN))
+    print(len(contents))
 
-    f = Frame(inch, inch, 6*inch, 10*inch, showBoundary=1)
-    f.addFromList(story, pdf)
+    if len(contents) > 15:
+        print("check 1")
+        content_part1 = contents[:15]
+        content_part2 = contents[15:]
+        create_content_p1 = " <br/><br />".join(content_part1)
+        create_content_p2 = " <br/><br />".join(content_part2)
+        story.append(Paragraph(create_content_p1, styleN))
+        f1 = Frame(inch, inch, 6*inch, 10*inch, showBoundary=1)
+        f1.addFromList(story, pdf)
+
+        print("check 2")
+        pdf.showPage()
+        #pdf_p2 = canvas.Canvas(fileName)
+        f2 = Frame(inch, inch, 6*inch, 10*inch, showBoundary=1)
+        story_p2.append(Paragraph(create_content_p2, styleN))
+        f2.addFromList(story_p2, pdf)
+        # pdf_p2.save()
+
+    else:
+        create_content = " <br/><br />".join(contents)
+        story.append(Paragraph(create_content, styleN))
+        f = Frame(inch, inch, 6*inch, 10*inch, showBoundary=1)
+        f.addFromList(story, pdf)
+
     pdf.save()
 
 
